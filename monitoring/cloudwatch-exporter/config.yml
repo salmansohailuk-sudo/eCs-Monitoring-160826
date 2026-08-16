@@ -1,0 +1,12 @@
+region: us-east-1
+
+metrics:
+  - aws_namespace: AWS/EC2
+    aws_metric_name: CPUUtilization
+    aws_dimensions:
+      - InstanceId
+    aws_statistics:
+      - Average
+    period_seconds: 300
+    range_seconds: 600
+    delay_seconds: 300
