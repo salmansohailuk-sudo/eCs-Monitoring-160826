@@ -9,6 +9,7 @@ This is the simpler architecture for the current `testcluster`
 environment.
 
 The application services remain separate:
+<img width="571" height="392" alt="image" src="https://github.com/user-attachments/assets/53a351f7-9b83-438d-9bcd-4b30e4217dfa" />
 
 ``` text
 ECS Cluster: testcluster
