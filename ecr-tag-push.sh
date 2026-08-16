@@ -59,6 +59,48 @@ echo "ECR login successful."
 
 
 # =========================================================
+# Create ECR Repositories
+# =========================================================
+
+echo ""
+echo "=========================================="
+echo " Creating ECR Repositories"
+echo "=========================================="
+
+REPOSITORIES=(
+    "${FRONTEND_IMAGE}"
+    "${BACKEND_IMAGE}"
+    "${GRAFANA_IMAGE}"
+    "${PROMETHEUS_IMAGE}"
+    "${CLOUDWATCH_EXPORTER_IMAGE}"
+)
+
+for REPO in "${REPOSITORIES[@]}"; do
+
+    if aws ecr describe-repositories \
+        --repository-names "${REPO}" \
+        --region "${AWS_REGION}" \
+        > /dev/null 2>&1; then
+
+        echo "Already exists: ${REPO}"
+
+    else
+
+        echo "Creating: ${REPO}"
+
+        aws ecr create-repository \
+            --repository-name "${REPO}" \
+            --region "${AWS_REGION}" \
+            > /dev/null
+
+        echo "Created: ${REPO}"
+
+    fi
+
+done
+
+
+# =========================================================
 # Check Local Images
 # =========================================================
 
@@ -82,7 +124,6 @@ for IMAGE in "${REQUIRED_IMAGES[@]}"; do
         echo "ERROR: Local image not found:"
         echo "${IMAGE}"
         echo ""
-        echo "Please make sure the image already exists locally."
         exit 1
     fi
 
@@ -99,7 +140,6 @@ echo ""
 echo "=========================================="
 echo " Tagging Five Images"
 echo "=========================================="
-
 
 echo "Tagging Frontend..."
 
