@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+
+  frontend:
+    image: ecomm-frontend:latest
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  backend:
+    image: ecomm-backend:latest
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+
+  grafana:
+    image: monitoring-grafana:latest
+    build:
+      context: ./monitoring/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_ROOT_URL: http://localhost:3000/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: monitoring-prometheus:latest
+    build:
+      context: ./monitoring/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - cloudwatch-exporter
+
+  cloudwatch-exporter:
+    image: monitoring-cloudwatch-exporter:latest
+    build:
+      context: ./monitoring/cloudwatch-exporter
+    ports:
+      - "9106:9106"
