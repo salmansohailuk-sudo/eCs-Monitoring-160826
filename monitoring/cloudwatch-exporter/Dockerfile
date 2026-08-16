@@ -4,4 +4,4 @@ COPY config.yml /config/config.yml
 
 EXPOSE 9106
 
-CMD ["/cloudwatch_exporter", "9106", "/config/config.yml"]
+CMD ["/bin/sh", "-c", "java -jar /cloudwatch_exporter.jar 9106 /config/config.yml"]
