@@ -1,6 +1,11 @@
-# eCs-Monitoring-160826
+eCs-Monitoring-160826
 
-project/
+AWS ECS application and monitoring project using Docker, Prometheus, Grafana, and CloudWatch Exporter.
+
+IMPORTANT: Before deploying, you must update the root .env file and the monitoring/prometheus/Dockerfile with the correct ALB configuration.
+
+Project Structure
+eCs-Monitoring-160826/
 │
 ├── docker-compose.yml
 ├── create-directories.sh
