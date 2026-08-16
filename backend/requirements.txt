@@ -1,0 +1,5 @@
+Flask
+gunicorn
+stripe
+mysql-connector-python
+python-dotenv

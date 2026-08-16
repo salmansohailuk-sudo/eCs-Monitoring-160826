@@ -783,7 +783,7 @@ ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/monitoring-cloudwatch-exporter:latest
 - [ ] AWS CLI installed
 - [ ] EC2 IAM role configured
 - [ ] Project cloned
-- [ ] Directories created
+- [ ] Directories createdDo
 - [ ] Frontend Dockerfile exists
 - [ ] Backend Dockerfile exists
 - [ ] Grafana Dockerfile exists
