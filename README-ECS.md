@@ -2,9 +2,13 @@
 # E-Commerce + Monitoring Stack
 
 note: ALB Target health setting for grafana
+
 /api/health
+
 ALB Target health setting for prometheus
-/-/healthy
+
+/prometheus/-/healthy
+
 Check Prometheus health - curl http://your-alb-dns/prometheus/-/healthy
 
 
