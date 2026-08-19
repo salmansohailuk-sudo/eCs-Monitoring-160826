@@ -1,6 +1,14 @@
 # ECS Fargate Deployment Guide
 # E-Commerce + Monitoring Stack
 
+note: ALB Target health setting for grafana
+/api/health
+ALB Target health setting for prometheus
+/-/healthy
+Check Prometheus health - curl http://your-alb-dns/prometheus/-/healthy
+
+
+
 This guide deploys the application and monitoring stack to Amazon ECS Fargate.
 
 The existing ECS cluster and existing Application Load Balancer are reused.
