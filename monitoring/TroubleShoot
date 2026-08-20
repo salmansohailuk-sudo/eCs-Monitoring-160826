@@ -17,7 +17,7 @@ Then force a new deployment so new tasks start with ECS Exec enabled.
 
 aws ecs execute-command \
   --cluster testcluster \
-  --task 63ebfb2f88dd49c2b0a4c9c401d23647 \
+  --task af6917386f4943a7a47cb27ced0b66e0 \
   --container prometheus \
   --interactive \
   --command "/bin/sh"
