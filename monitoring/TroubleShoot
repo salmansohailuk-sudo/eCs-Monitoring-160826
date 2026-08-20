@@ -24,3 +24,16 @@ aws ecs execute-command \
 
 
 
+wget -qO- http://localhost:9090/prometheus/api/v1/targets
+
+ps aux | grep web
+
+
+ps aux | grep prometheus
+
+
+netstat -tlnp
+
+
+
+
