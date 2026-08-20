@@ -1,0 +1,26 @@
+
+4. Update the ECS Service
+
+After enabling ECS Exec and updating IAM:
+
+Go to ECS
+Open your Cluster
+Open the Service
+Click Update
+Go to Troubleshooting and enable EXEC. and redeploy
+Enable Execute command
+Deploy the service
+
+Then force a new deployment so new tasks start with ECS Exec enabled.
+
+
+
+aws ecs execute-command \
+  --cluster testcluster \
+  --task 63ebfb2f88dd49c2b0a4c9c401d23647 \
+  --container prometheus \
+  --interactive \
+  --command "/bin/sh"
+
+
+
