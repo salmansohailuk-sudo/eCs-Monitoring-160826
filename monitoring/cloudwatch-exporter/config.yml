@@ -3,10 +3,35 @@ region: us-east-1
 metrics:
   - aws_namespace: AWS/EC2
     aws_metric_name: CPUUtilization
-    aws_dimensions:
-      - InstanceId
-    aws_statistics:
-      - Average
-    period_seconds: 300
-    range_seconds: 600
-    delay_seconds: 300
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Average]
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: NetworkIn
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: NetworkOut
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: DiskReadOps
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: DiskWriteOps
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+
+  - aws_namespace: AWS/ELB
+    aws_metric_name: SurgeQueueLength
+    aws_dimensions: [LoadBalancerName]
+    aws_statistics: [Average]
+
+  - aws_namespace: ContainerInsights
+    aws_metric_name: node_cpu_utilization
+    aws_dimensions: [NodeName]
+    aws_statistics: [Average]
