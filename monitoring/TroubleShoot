@@ -22,6 +22,7 @@ aws ecs execute-command \
   --interactive \
   --command "/bin/sh"
 
+wget -qO- http://localhost:9106/metrics | grep aws
 
 
 wget -qO- http://localhost:9090/prometheus/api/v1/targets
@@ -35,5 +36,19 @@ ps aux | grep prometheus
 netstat -tlnp
 
 
+wget -qO- http://localhost:9090/api/v1/targets | grep cloudwatch
+wget: server returned error: HTTP/1.1 404 Not Found
 
+
+
+The real issue: Prometheus is NOT listening on port 9090
+Your test:
+
+Code
+wget -qO- http://localhost:9090/api/v1/targets
+returns:
+
+Code
+404 Not Found
+This means:
 
