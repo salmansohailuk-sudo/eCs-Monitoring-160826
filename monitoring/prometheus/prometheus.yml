@@ -10,6 +10,7 @@ scrape_configs:
           - "localhost:9090"
 
   - job_name: "cloudwatch-exporter"
+    metrics_path: "/metrics"
     static_configs:
       - targets:
           - "localhost:9106"
