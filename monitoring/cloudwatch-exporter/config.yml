@@ -1,13 +1,4 @@
 region: us-east-1
-
-metrics:
-  - aws_namespace: AWS/EC2
-    aws_metric_name: CPUUtilization
-    aws_dimensions: [InstanceId]
-    aws_statistics: [Average]
-
-  - aws_namespace: AWS/EC2
-    aws_metric_name: NetworkInaregion: us-east-1
 metrics:
   - aws_namespace: AWS/EC2
     aws_metric_name: CPUUtilization
@@ -33,33 +24,6 @@ metrics:
     aws_metric_name: SurgeQueueLength
     aws_dimensions: [LoadBalancerName]
     aws_statistics: [Average]
-  - aws_namespace: ContainerInsights
-    aws_metric_name: node_cpu_utilization
-    aws_dimensions: [NodeName]
-    aws_statistics: [Average]
-    aws_dimensions: [InstanceId]
-    aws_statistics: [Sum]
-
-  - aws_namespace: AWS/EC2
-    aws_metric_name: NetworkOut
-    aws_dimensions: [InstanceId]
-    aws_statistics: [Sum]
-
-  - aws_namespace: AWS/EC2
-    aws_metric_name: DiskReadOps
-    aws_dimensions: [InstanceId]
-    aws_statistics: [Sum]
-
-  - aws_namespace: AWS/EC2
-    aws_metric_name: DiskWriteOps
-    aws_dimensions: [InstanceId]
-    aws_statistics: [Sum]
-
-  - aws_namespace: AWS/ELB
-    aws_metric_name: SurgeQueueLength
-    aws_dimensions: [LoadBalancerName]
-    aws_statistics: [Average]
-
   - aws_namespace: ContainerInsights
     aws_metric_name: node_cpu_utilization
     aws_dimensions: [NodeName]
