@@ -1,11 +1,36 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import stripe
 import mysql.connector
 import os
 import logging
 import traceback
 
+from prometheus_client import (
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+    Counter,
+    Histogram
+)
+
 app = Flask(__name__)
+
+# ----------------------------------------------------
+# Prometheus Metrics
+# ----------------------------------------------------
+
+HTTP_REQUESTS = Counter(
+    "flask_http_requests_total",
+    "Total HTTP requests",
+    ["method", "endpoint", "status"]
+)
+
+HTTP_REQUEST_DURATION = Histogram(
+    "flask_http_request_duration_seconds",
+    "HTTP request duration in seconds",
+    ["method", "endpoint"]
+)
+
+
 
 # ----------------------------------------------------
 # Logging
@@ -160,6 +185,18 @@ def save_order(session):
         if conn:
             conn.close()
 
+
+
+# ----------------------------------------------------
+# Prometheus Metrics Endpoint
+# ----------------------------------------------------
+
+@app.route("/metrics")
+def metrics():
+    return Response(
+        generate_latest(),
+        mimetype=CONTENT_TYPE_LATEST
+    )
 
 # ----------------------------------------------------
 # Health Check
