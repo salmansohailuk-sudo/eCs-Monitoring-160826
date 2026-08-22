@@ -3,3 +3,4 @@ gunicorn
 stripe
 mysql-connector-python
 python-dotenv
+prometheus-client
