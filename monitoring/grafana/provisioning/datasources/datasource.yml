@@ -1,16 +1,97 @@
-apiVersion: 1
+version: "3.9"
 
-datasources:
+services:
 
-  - name: Prometheus
-    uid: prometheus
-    type: prometheus
-    access: proxy
+  # =====================================================
+  # FRONTEND
+  # =====================================================
 
-    url: ${PROMETHEUS_URL}
+  frontend:
+    image: ecomm-frontend:latest
 
-    isDefault: true
-    editable: true
+    build:
+      context: ./frontend
 
-    jsonData:
-      httpMethod: POST
+    ports:
+      - "80:80"
+
+    depends_on:
+      - backend
+
+
+  # =====================================================
+  # BACKEND
+  # =====================================================
+
+  backend:
+    image: ecomm-backend:latest
+
+    build:
+      context: ./backend
+
+    env_file:
+      - .env
+
+    ports:
+      - "5000:5000"
+
+
+  # =====================================================
+  # CLOUDWATCH EXPORTER
+  # =====================================================
+
+  cloudwatch-exporter:
+    image: monitoring-cloudwatch-exporter:latest
+
+    build:
+      context: ./monitoring/cloudwatch-exporter
+
+    ports:
+      - "9106:9106"
+
+
+  # =====================================================
+  # PROMETHEUS
+  # =====================================================
+
+  prometheus:
+    image: monitoring-prometheus:latest
+
+    build:
+      context: ./monitoring/prometheus
+
+    ports:
+      - "9090:9090"
+
+    depends_on:
+      - backend
+      - cloudwatch-exporter
+
+
+  # =====================================================
+  # GRAFANA
+  # =====================================================
+
+  grafana:
+    image: monitoring-grafana:latest
+
+    build:
+      context: ./monitoring/grafana
+
+    ports:
+      - "3000:3000"
+
+    environment:
+
+      GF_SECURITY_ADMIN_USER: admin
+
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+      GF_SERVER_ROOT_URL: "http://98.81.20.105:3000/"
+
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
+
+      PROMETHEUS_URL: "http://prometheus:9090"
+
+    depends_on:
+      - prometheus
