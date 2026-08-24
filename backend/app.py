@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, Response
-import stripe
-import mysql.connector
+import time
 import os
 import logging
 import traceback
+from flask import Flask, request, jsonify, Response
+import stripe
+import mysql.connector
 
 from prometheus_client import (
     generate_latest,
@@ -15,9 +16,8 @@ from prometheus_client import (
 app = Flask(__name__)
 
 # ----------------------------------------------------
-# Prometheus Metrics
+# Prometheus Metrics Definitions
 # ----------------------------------------------------
-
 HTTP_REQUESTS = Counter(
     "flask_http_requests_total",
     "Total HTTP requests",
@@ -30,10 +30,32 @@ HTTP_REQUEST_DURATION = Histogram(
     ["method", "endpoint"]
 )
 
+# Request Hooks for Automated Scrape Recording
+@app.before_request
+def before_request():
+    request._start_time = time.time()
 
+@app.after_request
+def after_request(response):
+    if request.endpoint != "metrics":
+        duration = time.time() - getattr(request, "_start_time", time.time())
+        endpoint = request.endpoint or "unknown"
+        
+        HTTP_REQUESTS.labels(
+            method=request.method,
+            endpoint=endpoint,
+            status=response.status_code
+        ).inc()
+        
+        HTTP_REQUEST_DURATION.labels(
+            method=request.method,
+            endpoint=endpoint
+        ).observe(duration)
+        
+    return response
 
 # ----------------------------------------------------
-# Logging
+# Logging Configuration
 # ----------------------------------------------------
 logging.basicConfig(level=logging.INFO)
 
@@ -97,11 +119,11 @@ def save_event(event_type, session_id=None):
         app.logger.error(str(e))
 
 # ----------------------------------------------------
-# Save Geo Location
+# Geo Tracking Endpoint
 # ----------------------------------------------------
 @app.post("/api/track-geo")
 def track_geo():
-    data = request.json
+    data = request.json or {}
 
     try:
         conn = get_db_connection()
@@ -132,7 +154,7 @@ def track_geo():
     return jsonify({"status": "ok"})
 
 # ----------------------------------------------------
-# Save Order
+# Save Order Logic
 # ----------------------------------------------------
 def save_order(session):
     conn = None
@@ -185,12 +207,9 @@ def save_order(session):
         if conn:
             conn.close()
 
-
-
 # ----------------------------------------------------
 # Prometheus Metrics Endpoint
 # ----------------------------------------------------
-
 @app.route("/metrics")
 def metrics():
     return Response(
@@ -199,46 +218,37 @@ def metrics():
     )
 
 # ----------------------------------------------------
-# Health Check
+# Health Check Endpoint
 # ----------------------------------------------------
 @app.route('/health')
 def health():
     return jsonify({"status": "ok"})
 
 # ----------------------------------------------------
-# Track Visit
+# Tracking Routes
 # ----------------------------------------------------
 @app.post("/api/track-visit")
 def track_visit():
     save_event("page_visit")
     return jsonify({"status": "ok"})
 
-# ----------------------------------------------------
-# Track Start Checkout
-# ----------------------------------------------------
 @app.post("/api/track-start-checkout")
 def track_start_checkout():
     save_event("start_checkout")
     return jsonify({"status": "ok"})
 
-# ----------------------------------------------------
-# Track Cancel
-# ----------------------------------------------------
 @app.post("/api/track-cancel")
 def track_cancel():
     save_event("cancel_checkout")
     return jsonify({"status": "ok"})
 
-# ----------------------------------------------------
-# Track Success Page Load
-# ----------------------------------------------------
 @app.post("/api/track-success")
 def track_success():
     save_event("payment_success_page")
     return jsonify({"status": "ok"})
 
 # ----------------------------------------------------
-# Stripe Checkout Session
+# Stripe Routes
 # ----------------------------------------------------
 @app.post("/api/create-checkout-session")
 def create_checkout_session():
@@ -269,9 +279,6 @@ def create_checkout_session():
         app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
-# ----------------------------------------------------
-# Stripe Webhook
-# ----------------------------------------------------
 @app.post("/api/webhook")
 def stripe_webhook():
     app.logger.info("========================================")
@@ -301,19 +308,13 @@ def stripe_webhook():
     event_type = event["type"]
     data = event["data"]["object"]
 
-    # Successful payment
     if event_type == "checkout.session.completed":
         save_order(data)
         save_event("payment_success", data["id"])
-
-    # Checkout expired (user never paid)
     elif event_type == "checkout.session.expired":
         save_event("checkout_expired", data["id"])
-
-    # Payment failed
     elif event_type == "payment_intent.payment_failed":
         save_event("payment_failed", data["id"])
-
     else:
         app.logger.info(f"Ignoring Event : {event_type}")
 
@@ -329,9 +330,6 @@ def root():
         "status": "running"
     })
 
-# ----------------------------------------------------
-# Main
-# ----------------------------------------------------
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
