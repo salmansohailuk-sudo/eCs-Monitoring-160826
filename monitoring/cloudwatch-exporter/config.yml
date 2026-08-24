@@ -1,6 +1,37 @@
 region: us-east-1
 
 metrics:
+  # =====================================================
+  # ECS CONTAINER INSIGHTS
+  # =====================================================
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: CpuUtilized
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: MemoryUtilized
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: NetworkRxBytes
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: NetworkTxBytes
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
 
   # =====================================================
   # EC2
@@ -40,7 +71,6 @@ metrics:
     aws_statistics: [Sum]
     period_seconds: 60
     range_seconds: 300
-
 
   # =====================================================
   # APPLICATION LOAD BALANCER
