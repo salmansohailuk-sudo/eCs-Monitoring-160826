@@ -8,28 +8,59 @@ scrape_configs:
   # =====================================================
   # PROMETHEUS ITSELF
   # =====================================================
+
   - job_name: "prometheus"
+
     metrics_path: "/metrics"
+
     static_configs:
+
       - targets:
+
           - "localhost:9090"
+
 
   # =====================================================
   # CLOUDWATCH EXPORTER
+  # EC2 / ALB / AWS CLOUDWATCH METRICS
   # =====================================================
+
   - job_name: "cloudwatch-exporter"
+
     metrics_path: "/metrics"
+
     static_configs:
+
       - targets:
+
           - "cloudwatch-exporter:9106"
-          - "cloudwatch-exporter.testcluster.local:9106"
+
 
   # =====================================================
   # FLASK BACKEND
   # =====================================================
+
   - job_name: "backend"
+
     metrics_path: "/metrics"
+
     static_configs:
+
       - targets:
+
           - "backend:5000"
+
           - "backend.testcluster.local:5000"
+
+
+  # =====================================================
+  # NGINX FRONTEND EXPORTER
+  # =====================================================
+
+  - job_name: "nginx-exporter"
+
+    metrics_path: "/metrics"
+
+    static_configs:
+
+      - targets:
