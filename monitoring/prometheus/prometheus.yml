@@ -5,7 +5,7 @@ global:
 
 scrape_configs:
   # =====================================================
-  # Prometheus itself
+  # PROMETHEUS ITSELF
   # =====================================================
   - job_name: "prometheus"
     metrics_path: "/metrics"
@@ -14,7 +14,7 @@ scrape_configs:
           - "localhost:9090"
 
   # =====================================================
-  # CloudWatch Exporter
+  # CLOUDWATCH EXPORTER (EC2 & ECS CLOUD MAP SUPPORTS)
   # =====================================================
   - job_name: "cloudwatch-exporter"
     metrics_path: "/metrics"
@@ -24,7 +24,7 @@ scrape_configs:
           - "cloudwatch-exporter.testcluster.local:9106"
 
   # =====================================================
-  # Flask Backend Application
+  # FLASK BACKEND (EC2 & ECS CLOUD MAP SUPPORTS)
   # =====================================================
   - job_name: "backend"
     metrics_path: "/metrics"
