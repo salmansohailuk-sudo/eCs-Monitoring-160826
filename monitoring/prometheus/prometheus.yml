@@ -4,6 +4,7 @@ global:
   scrape_timeout: 10s
 
 scrape_configs:
+
   # =====================================================
   # PROMETHEUS ITSELF
   # =====================================================
@@ -14,7 +15,7 @@ scrape_configs:
           - "localhost:9090"
 
   # =====================================================
-  # CLOUDWATCH EXPORTER (EC2 & ECS CLOUD MAP SUPPORTS)
+  # CLOUDWATCH EXPORTER
   # =====================================================
   - job_name: "cloudwatch-exporter"
     metrics_path: "/metrics"
@@ -24,7 +25,7 @@ scrape_configs:
           - "cloudwatch-exporter.testcluster.local:9106"
 
   # =====================================================
-  # FLASK BACKEND (EC2 & ECS CLOUD MAP SUPPORTS)
+  # FLASK BACKEND
   # =====================================================
   - job_name: "backend"
     metrics_path: "/metrics"
