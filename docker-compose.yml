@@ -1,51 +1,121 @@
-version: "3.9"
-
 services:
+
+  # =====================================================
+  # FRONTEND
+  # =====================================================
+
   frontend:
     image: ecomm-frontend:latest
+
     build:
       context: ./frontend
+
     ports:
       - "80:80"
+
     depends_on:
       - backend
 
+    networks:
+      - ecommerce-network
+
+
+  # =====================================================
+  # BACKEND
+  # =====================================================
+
   backend:
     image: ecomm-backend:latest
+
     build:
       context: ./backend
+
     env_file:
       - .env
+
     ports:
       - "5000:5000"
 
-  grafana:
-    image: monitoring-grafana:latest
-    build:
-      context: ./monitoring/grafana
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_SERVER_ROOT_URL: "http://${EC2_PUBLIC_IP}:3000/"
-      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
-      PROMETHEUS_URL: "http://prometheus:9090"
-    depends_on:
-      - prometheus
+    networks:
+      - ecommerce-network
 
-  prometheus:
-    image: monitoring-prometheus:latest
-    build:
-      context: ./monitoring/prometheus
-    ports:
-      - "9090:9090"
-    depends_on:
-      - cloudwatch-exporter
+
+  # =====================================================
+  # CLOUDWATCH EXPORTER
+  # =====================================================
 
   cloudwatch-exporter:
     image: monitoring-cloudwatch-exporter:latest
+
     build:
       context: ./monitoring/cloudwatch-exporter
+
     ports:
       - "9106:9106"
+
+    networks:
+      - ecommerce-network
+
+
+  # =====================================================
+  # PROMETHEUS
+  # =====================================================
+
+  prometheus:
+    image: monitoring-prometheus:latest
+
+    build:
+      context: ./monitoring/prometheus
+
+    ports:
+      - "9090:9090"
+
+    depends_on:
+      - backend
+      - cloudwatch-exporter
+
+    networks:
+      - ecommerce-network
+
+
+  # =====================================================
+  # GRAFANA
+  # =====================================================
+
+  grafana:
+    image: monitoring-grafana:latest
+
+    build:
+      context: ./monitoring/grafana
+
+    ports:
+      - "3000:3000"
+
+    environment:
+
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+
+      GF_SERVER_ROOT_URL: "http://${EC2_PUBLIC_IP}:3000/"
+
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
+
+      PROMETHEUS_URL: "http://prometheus:9090"
+
+    depends_on:
+      - prometheus
+
+    networks:
+      - ecommerce-network
+
+
+# =====================================================
+# NETWORK
+# =====================================================
+
+networks:
+
+  ecommerce-network:
+
+    driver: bridge
