@@ -2,9 +2,8 @@ region: us-east-1
 
 metrics:
   # =====================================================
-  # ECS CONTAINER INSIGHTS
+  # ECS CONTAINER INSIGHTS METRICS
   # =====================================================
-
   - aws_namespace: ECS/ContainerInsights
     aws_metric_name: CpuUtilized
     aws_dimensions: [ClusterName, ServiceName]
@@ -34,9 +33,8 @@ metrics:
     range_seconds: 300
 
   # =====================================================
-  # EC2
+  # EC2 METRICS
   # =====================================================
-
   - aws_namespace: AWS/EC2
     aws_metric_name: CPUUtilization
     aws_dimensions: [InstanceId]
@@ -73,9 +71,8 @@ metrics:
     range_seconds: 300
 
   # =====================================================
-  # APPLICATION LOAD BALANCER
+  # APPLICATION LOAD BALANCER METRICS
   # =====================================================
-
   - aws_namespace: AWS/ApplicationELB
     aws_metric_name: RequestCount
     aws_dimensions: [LoadBalancer]
