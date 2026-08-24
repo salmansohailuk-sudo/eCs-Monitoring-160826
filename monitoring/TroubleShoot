@@ -1,3 +1,27 @@
+Make sure you add roles cloudwatch to ec2 instance or task role for ecs
+
+inline policy so cloudwatch exporter can pull from cloudwatch
+
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"cloudwatch:GetMetricData",
+				"cloudwatch:GetMetricStatistics",
+				"cloudwatch:ListMetrics"
+			],
+			"Resource": "*"
+		}
+	]
+}
+
+Task execution role - default aws policy and s3 access
+Task role: s3 and cloudwatch exporter
+
+
+
 
 4. Update the ECS Service
 
