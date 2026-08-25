@@ -5,6 +5,7 @@ services:
   # =====================================================
 
   frontend:
+
     container_name: ecomm-frontend
 
     image: ecomm-frontend:latest
@@ -27,6 +28,7 @@ services:
   # =====================================================
 
   backend:
+
     container_name: ecomm-backend
 
     image: ecomm-backend:latest
@@ -49,6 +51,7 @@ services:
   # =====================================================
 
   nginx-exporter:
+
     container_name: monitoring-nginx-exporter
 
     image: monitoring-nginx-exporter:latest
@@ -71,6 +74,7 @@ services:
   # =====================================================
 
   cloudwatch-exporter:
+
     container_name: monitoring-cloudwatch-exporter
 
     image: monitoring-cloudwatch-exporter:latest
@@ -90,6 +94,7 @@ services:
   # =====================================================
 
   prometheus:
+
     container_name: monitoring-prometheus
 
     image: monitoring-prometheus:latest
@@ -114,6 +119,7 @@ services:
   # =====================================================
 
   grafana:
+
     container_name: monitoring-grafana
 
     image: monitoring-grafana:latest
