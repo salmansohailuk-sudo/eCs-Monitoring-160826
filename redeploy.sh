@@ -2,6 +2,7 @@
 
 set -e
 
+
 # =====================================================
 # LOAD ENVIRONMENT
 # =====================================================
@@ -47,31 +48,33 @@ echo "=============================================="
 echo " E-COMMERCE MONITORING LOCAL REDEPLOY"
 echo "=============================================="
 echo ""
+
 echo "EC2 Public IP : $EC2_PUBLIC_IP"
 echo "ALB DNS       : $ALB_DNS"
 echo "BASE URL      : $BASE_URL"
+
 echo ""
 
 
 # =====================================================
-# CHECK COMPOSE
+# CHECK DOCKER COMPOSE
 # =====================================================
 
 echo "Checking Docker Compose configuration..."
 
-docker compose config >/dev/null
+docker-compose config >/dev/null
 
 echo "Docker Compose configuration: OK"
 
 
 # =====================================================
-# STOP EXISTING STACK
+# STOP EXISTING CONTAINERS
 # =====================================================
 
 echo ""
 echo "Stopping existing containers..."
 
-docker compose down --remove-orphans
+docker-compose down --remove-orphans
 
 
 # =====================================================
@@ -81,7 +84,7 @@ docker compose down --remove-orphans
 echo ""
 echo "Building images..."
 
-docker compose build --no-cache
+docker-compose build --no-cache
 
 
 # =====================================================
@@ -91,7 +94,7 @@ docker compose build --no-cache
 echo ""
 echo "Starting containers..."
 
-docker compose up -d
+docker-compose up -d
 
 
 # =====================================================
@@ -113,7 +116,7 @@ echo "=============================================="
 echo " CONTAINER STATUS"
 echo "=============================================="
 
-docker compose ps
+docker-compose ps
 
 
 # =====================================================
@@ -128,17 +131,17 @@ echo "=============================================="
 echo ""
 echo "Nginx exporter container:"
 
-docker compose ps nginx-exporter
+docker-compose ps nginx-exporter
 
 
 echo ""
 echo "Nginx exporter logs:"
 
-docker compose logs --tail=20 nginx-exporter
+docker-compose logs --tail=20 nginx-exporter
 
 
 # =====================================================
-# TEST NGINX STATUS DIRECTLY
+# TEST NGINX STATUS
 # =====================================================
 
 echo ""
@@ -149,7 +152,7 @@ echo "=============================================="
 echo ""
 echo "Testing frontend /nginx_status..."
 
-if timeout 5 docker compose exec -T frontend \
+if timeout 5 docker-compose exec -T frontend \
     wget -qO- http://localhost/nginx_status
 then
     echo ""
@@ -180,11 +183,6 @@ then
     echo "Nginx exporter metrics endpoint: OK"
 
     echo ""
-    echo "Nginx exporter metrics:"
-    head -20 /tmp/nginx-exporter-metrics
-
-    echo ""
-
     echo "nginx_up metric:"
 
     grep "^nginx_up" /tmp/nginx-exporter-metrics || \
@@ -193,9 +191,6 @@ then
 else
 
     echo "WARNING: Nginx exporter metrics endpoint did not respond within 10 seconds."
-
-    echo ""
-    echo "The exporter container is running, but its Nginx scrape may not be working yet."
 
 fi
 
@@ -236,6 +231,7 @@ echo " BACKEND"
 echo "=============================================="
 
 echo ""
+
 echo "Backend health:"
 
 timeout 5 curl -fsS \
@@ -287,10 +283,12 @@ echo " PROMETHEUS"
 echo "=============================================="
 
 echo ""
+
 echo "Prometheus:"
 echo "http://${EC2_PUBLIC_IP}:9090"
 
 echo ""
+
 echo "Prometheus Targets:"
 echo "http://${EC2_PUBLIC_IP}:9090/targets"
 
@@ -317,6 +315,7 @@ echo " GRAFANA"
 echo "=============================================="
 
 echo ""
+
 echo "Grafana:"
 echo "http://${EC2_PUBLIC_IP}:3000"
 
@@ -343,6 +342,7 @@ echo " FRONTEND"
 echo "=============================================="
 
 echo ""
+
 echo "Frontend:"
 echo "http://${EC2_PUBLIC_IP}"
 
@@ -369,6 +369,7 @@ echo " ALB"
 echo "=============================================="
 
 echo ""
+
 echo "ALB:"
 echo "http://${ALB_DNS}"
 
@@ -386,9 +387,9 @@ echo ""
 echo "All containers have been started."
 
 echo ""
-echo "Containers:"
 
 docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 
 echo ""
+
 echo "=============================================="
