@@ -162,7 +162,6 @@ else
     echo "WARNING: Nginx /nginx_status is not responding."
 fi
 
-
 # =====================================================
 # TEST NGINX EXPORTER
 # =====================================================
