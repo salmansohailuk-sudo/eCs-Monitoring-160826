@@ -1,12 +1,17 @@
 global:
+
   scrape_interval: 15s
+
   evaluation_interval: 15s
+
   scrape_timeout: 10s
+
 
 scrape_configs:
 
+
   # =====================================================
-  # PROMETHEUS ITSELF
+  # PROMETHEUS
   # =====================================================
 
   - job_name: "prometheus"
@@ -14,13 +19,14 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
+
       - targets:
+
           - "localhost:9090"
 
 
   # =====================================================
-  # CLOUDWATCH EXPORTER
-  # EC2 / ALB / AWS CLOUDWATCH METRICS
+  # AWS CLOUDWATCH EXPORTER
   # =====================================================
 
   - job_name: "cloudwatch-exporter"
@@ -28,7 +34,9 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
+
       - targets:
+
           - "cloudwatch-exporter:9106"
 
 
@@ -41,9 +49,10 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
+
       - targets:
+
           - "backend:5000"
-          - "backend.testcluster.local:5000"
 
 
   # =====================================================
@@ -55,5 +64,7 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
+
       - targets:
+
           - "nginx-exporter:9113"
