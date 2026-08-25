@@ -1,10 +1,12 @@
 services:
 
   # =====================================================
-  # FRONTEND
+  # E-COMMERCE FRONTEND
   # =====================================================
 
   frontend:
+    container_name: ecomm-frontend
+
     image: ecomm-frontend:latest
 
     build:
@@ -21,10 +23,12 @@ services:
 
 
   # =====================================================
-  # BACKEND
+  # E-COMMERCE BACKEND
   # =====================================================
 
   backend:
+    container_name: ecomm-backend
+
     image: ecomm-backend:latest
 
     build:
@@ -41,10 +45,37 @@ services:
 
 
   # =====================================================
-  # CLOUDWATCH EXPORTER
+  # NGINX PROMETHEUS EXPORTER
+  # =====================================================
+
+  nginx-exporter:
+    container_name: monitoring-nginx-exporter
+
+    image: monitoring-nginx-exporter:latest
+
+    build:
+      context: ./monitoring/nginx-exporter
+
+    ports:
+      - "9113:9113"
+
+    depends_on:
+      - frontend
+
+    command:
+      - "-nginx.scrape-uri=http://frontend/nginx_status"
+
+    networks:
+      - ecommerce-network
+
+
+  # =====================================================
+  # AWS CLOUDWATCH EXPORTER
   # =====================================================
 
   cloudwatch-exporter:
+    container_name: monitoring-cloudwatch-exporter
+
     image: monitoring-cloudwatch-exporter:latest
 
     build:
@@ -62,6 +93,8 @@ services:
   # =====================================================
 
   prometheus:
+    container_name: monitoring-prometheus
+
     image: monitoring-prometheus:latest
 
     build:
@@ -72,6 +105,7 @@ services:
 
     depends_on:
       - backend
+      - nginx-exporter
       - cloudwatch-exporter
 
     networks:
@@ -83,6 +117,8 @@ services:
   # =====================================================
 
   grafana:
+    container_name: monitoring-grafana
+
     image: monitoring-grafana:latest
 
     build:
