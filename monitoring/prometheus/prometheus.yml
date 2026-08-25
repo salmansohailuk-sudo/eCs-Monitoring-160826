@@ -14,9 +14,7 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
-
       - targets:
-
           - "localhost:9090"
 
 
@@ -30,9 +28,7 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
-
       - targets:
-
           - "cloudwatch-exporter:9106"
 
 
@@ -45,11 +41,8 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
-
       - targets:
-
           - "backend:5000"
-
           - "backend.testcluster.local:5000"
 
 
@@ -62,5 +55,5 @@ scrape_configs:
     metrics_path: "/metrics"
 
     static_configs:
-
       - targets:
+          - "nginx-exporter:9113"
