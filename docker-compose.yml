@@ -62,9 +62,6 @@ services:
     depends_on:
       - frontend
 
-    command:
-      - "-nginx.scrape-uri=http://frontend/nginx_status"
-
     networks:
       - ecommerce-network
 
