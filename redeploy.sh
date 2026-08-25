@@ -2,19 +2,14 @@
 
 set -e
 
-
 # =====================================================
 # LOAD ENVIRONMENT
 # =====================================================
 
 if [ ! -f .env ]; then
-
     echo "ERROR: .env file not found."
-
     exit 1
-
 fi
-
 
 set -a
 source .env
@@ -26,36 +21,18 @@ set +a
 # =====================================================
 
 if [ -z "$EC2_PUBLIC_IP" ]; then
-
     echo "ERROR: EC2_PUBLIC_IP is not set in .env"
-
     exit 1
-
 fi
 
-
 if [ -z "$ALB_DNS" ]; then
-
     echo "ERROR: ALB_DNS is not set in .env"
-
     exit 1
-
 fi
 
 
 # =====================================================
-# EC2 PUBLIC URL
-#
-# Do NOT force BASE_URL to ALB.
-#
-# app.py supports:
-#
-# EC2:
-#   EC2_PUBLIC_IP
-#
-# ECS:
-#   ALB_DNS
-#
+# LOCAL EC2 BASE URL
 # =====================================================
 
 BASE_URL="http://${EC2_PUBLIC_IP}"
@@ -70,18 +47,14 @@ echo "=============================================="
 echo " E-COMMERCE MONITORING LOCAL REDEPLOY"
 echo "=============================================="
 echo ""
-
 echo "EC2 Public IP : $EC2_PUBLIC_IP"
-
 echo "ALB DNS       : $ALB_DNS"
-
 echo "BASE URL      : $BASE_URL"
-
 echo ""
 
 
 # =====================================================
-# SHOW COMPOSE CONFIG
+# CHECK COMPOSE
 # =====================================================
 
 echo "Checking Docker Compose configuration..."
@@ -92,7 +65,7 @@ echo "Docker Compose configuration: OK"
 
 
 # =====================================================
-# STOP EXISTING CONTAINERS
+# STOP EXISTING STACK
 # =====================================================
 
 echo ""
@@ -126,7 +99,7 @@ docker compose up -d
 # =====================================================
 
 echo ""
-echo "Waiting for containers..."
+echo "Waiting for containers to start..."
 
 sleep 15
 
@@ -144,7 +117,7 @@ docker compose ps
 
 
 # =====================================================
-# NGINX EXPORTER TEST
+# NGINX EXPORTER
 # =====================================================
 
 echo ""
@@ -153,35 +126,108 @@ echo " NGINX EXPORTER"
 echo "=============================================="
 
 echo ""
-
 echo "Nginx exporter container:"
 
 docker compose ps nginx-exporter
 
 
 echo ""
+echo "Nginx exporter logs:"
 
-echo "Nginx exporter metrics:"
-
-curl -fsS http://localhost:9113/metrics \
-    | head -20 || true
+docker compose logs --tail=20 nginx-exporter
 
 
 # =====================================================
-# NGINX STATUS TEST FROM FRONTEND CONTAINER
+# TEST NGINX STATUS DIRECTLY
 # =====================================================
 
 echo ""
 echo "=============================================="
-echo " NGINX STATUS TEST"
+echo " NGINX STATUS"
 echo "=============================================="
 
-docker compose exec -T frontend \
-    wget -qO- http://localhost/nginx_status || true
+echo ""
+echo "Testing frontend /nginx_status..."
+
+if timeout 5 docker compose exec -T frontend \
+    wget -qO- http://localhost/nginx_status
+then
+    echo ""
+    echo "Nginx status endpoint: OK"
+else
+    echo ""
+    echo "WARNING: Nginx /nginx_status is not responding."
+fi
 
 
 # =====================================================
-# BACKEND TEST
+# TEST NGINX EXPORTER
+# =====================================================
+
+echo ""
+echo "=============================================="
+echo " NGINX EXPORTER METRICS"
+echo "=============================================="
+
+echo ""
+echo "Testing exporter metrics endpoint..."
+
+if timeout 10 curl -fsS \
+    http://localhost:9113/metrics \
+    -o /tmp/nginx-exporter-metrics
+then
+
+    echo "Nginx exporter metrics endpoint: OK"
+
+    echo ""
+    echo "Nginx exporter metrics:"
+    head -20 /tmp/nginx-exporter-metrics
+
+    echo ""
+
+    echo "nginx_up metric:"
+
+    grep "^nginx_up" /tmp/nginx-exporter-metrics || \
+        echo "WARNING: nginx_up metric not found."
+
+else
+
+    echo "WARNING: Nginx exporter metrics endpoint did not respond within 10 seconds."
+
+    echo ""
+    echo "The exporter container is running, but its Nginx scrape may not be working yet."
+
+fi
+
+
+# =====================================================
+# TEST EXPORTER -> FRONTEND
+# =====================================================
+
+echo ""
+echo "=============================================="
+echo " EXPORTER -> FRONTEND TEST"
+echo "=============================================="
+
+echo ""
+
+if timeout 5 docker exec monitoring-nginx-exporter \
+    wget -qO- http://frontend/nginx_status
+then
+
+    echo ""
+    echo "Exporter can reach frontend /nginx_status: OK"
+
+else
+
+    echo ""
+    echo "WARNING: exporter cannot reach frontend /nginx_status."
+
+fi
+
+
+# =====================================================
+# BACKEND
 # =====================================================
 
 echo ""
@@ -190,28 +236,28 @@ echo " BACKEND"
 echo "=============================================="
 
 echo ""
-
 echo "Backend health:"
 
-curl -fsS \
-    http://${EC2_PUBLIC_IP}:5000/health || true
+timeout 5 curl -fsS \
+    http://${EC2_PUBLIC_IP}:5000/health || \
+    echo "WARNING: Backend health check failed."
 
 
 echo ""
-
 echo "Database health:"
 
-curl -fsS \
-    http://${EC2_PUBLIC_IP}:5000/health/db || true
+timeout 10 curl -fsS \
+    http://${EC2_PUBLIC_IP}:5000/health/db || \
+    echo "WARNING: Database health check failed."
 
 
 echo ""
-
 echo "Backend metrics:"
 
-curl -fsS \
+timeout 5 curl -fsS \
     http://${EC2_PUBLIC_IP}:5000/metrics \
-    | head -20 || true
+    | head -20 || \
+    echo "WARNING: Backend metrics check failed."
 
 
 # =====================================================
@@ -223,9 +269,12 @@ echo "=============================================="
 echo " CLOUDWATCH EXPORTER"
 echo "=============================================="
 
-curl -fsS \
+echo ""
+
+timeout 10 curl -fsS \
     http://${EC2_PUBLIC_IP}:9106/metrics \
-    | head -20 || true
+    | head -20 || \
+    echo "WARNING: CloudWatch exporter metrics check failed."
 
 
 # =====================================================
@@ -238,16 +287,24 @@ echo " PROMETHEUS"
 echo "=============================================="
 
 echo ""
-
 echo "Prometheus:"
-
 echo "http://${EC2_PUBLIC_IP}:9090"
 
 echo ""
-
 echo "Prometheus Targets:"
-
 echo "http://${EC2_PUBLIC_IP}:9090/targets"
+
+echo ""
+
+if timeout 5 curl -fsS \
+    http://localhost:9090/-/ready
+then
+    echo ""
+    echo "Prometheus: READY"
+else
+    echo ""
+    echo "WARNING: Prometheus readiness check failed."
+fi
 
 
 # =====================================================
@@ -260,10 +317,20 @@ echo " GRAFANA"
 echo "=============================================="
 
 echo ""
-
 echo "Grafana:"
-
 echo "http://${EC2_PUBLIC_IP}:3000"
+
+echo ""
+
+if timeout 5 curl -fsS \
+    http://localhost:3000/api/health
+then
+    echo ""
+    echo "Grafana: READY"
+else
+    echo ""
+    echo "WARNING: Grafana health check failed."
+fi
 
 
 # =====================================================
@@ -276,10 +343,20 @@ echo " FRONTEND"
 echo "=============================================="
 
 echo ""
-
 echo "Frontend:"
-
 echo "http://${EC2_PUBLIC_IP}"
+
+echo ""
+
+if timeout 5 curl -fsS \
+    http://localhost/health
+then
+    echo ""
+    echo "Frontend: READY"
+else
+    echo ""
+    echo "WARNING: Frontend health check failed."
+fi
 
 
 # =====================================================
@@ -292,9 +369,7 @@ echo " ALB"
 echo "=============================================="
 
 echo ""
-
 echo "ALB:"
-
 echo "http://${ALB_DNS}"
 
 
@@ -307,3 +382,13 @@ echo "=============================================="
 echo " REDEPLOY COMPLETE"
 echo "=============================================="
 echo ""
+
+echo "All containers have been started."
+
+echo ""
+echo "Containers:"
+
+docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+
+echo ""
+echo "=============================================="
