@@ -51,24 +51,20 @@ services:
   # =====================================================
 
   nginx-exporter:
-
-    container_name: monitoring-nginx-exporter
-
     image: monitoring-nginx-exporter:latest
-
     build:
       context: ./monitoring/nginx-exporter
-
+      dockerfile: Dockerfile
+    container_name: monitoring-nginx-exporter
+    command:
+      - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
     ports:
       - "9113:9113"
-
     depends_on:
-      - frontend
-
+      frontend:
+        condition: service_started
     networks:
       - ecommerce-network
-
-
   # =====================================================
   # AWS CLOUDWATCH EXPORTER
   # =====================================================
