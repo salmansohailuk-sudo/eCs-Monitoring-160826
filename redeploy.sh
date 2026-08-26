@@ -152,18 +152,23 @@ echo "=============================================="
 echo ""
 echo "Testing frontend /nginx_status..."
 
-if timeout 5 docker-compose exec -T frontend \
-    wget -qO- http://localhost/nginx_status
+if timeout 5 curl -fsS \
+    http://localhost/nginx_status
 then
+
     echo ""
     echo "Nginx status endpoint: OK"
+
 else
+
     echo ""
     echo "WARNING: Nginx /nginx_status is not responding."
+
 fi
 
+
 # =====================================================
-# TEST NGINX EXPORTER
+# TEST NGINX EXPORTER METRICS
 # =====================================================
 
 echo ""
@@ -173,6 +178,8 @@ echo "=============================================="
 
 echo ""
 echo "Testing exporter metrics endpoint..."
+
+rm -f /tmp/nginx-exporter-metrics
 
 if timeout 10 curl -fsS \
     http://localhost:9113/metrics \
@@ -184,7 +191,7 @@ then
     echo ""
     echo "nginx_up metric:"
 
-    grep "^nginx_up" /tmp/nginx-exporter-metrics || \
+    grep "^nginx_up " /tmp/nginx-exporter-metrics || \
         echo "WARNING: nginx_up metric not found."
 
 else
@@ -204,18 +211,29 @@ echo " EXPORTER -> FRONTEND TEST"
 echo "=============================================="
 
 echo ""
+echo "Checking nginx_up metric..."
 
-if timeout 5 docker exec monitoring-nginx-exporter \
-    wget -qO- http://frontend/nginx_status
-then
+NGINX_UP=""
+
+if [ -f /tmp/nginx-exporter-metrics ]; then
+
+    NGINX_UP=$(awk '$1 == "nginx_up" {print $2}' \
+        /tmp/nginx-exporter-metrics | head -1)
+
+fi
+
+
+if [ "$NGINX_UP" = "1" ]; then
 
     echo ""
-    echo "Exporter can reach frontend /nginx_status: OK"
+    echo "SUCCESS: Nginx exporter can reach frontend /nginx_status"
+    echo "nginx_up = 1"
 
 else
 
     echo ""
-    echo "WARNING: exporter cannot reach frontend /nginx_status."
+    echo "WARNING: Nginx exporter cannot successfully scrape frontend."
+    echo "nginx_up = ${NGINX_UP:-NOT FOUND}"
 
 fi
 
@@ -267,7 +285,7 @@ echo "=============================================="
 echo ""
 
 timeout 10 curl -fsS \
-    http://${EC2_PUBLIC_IP}:9106/metrics \
+    http://localhost:9106/metrics \
     | head -20 || \
     echo "WARNING: CloudWatch exporter metrics check failed."
 
@@ -296,11 +314,15 @@ echo ""
 if timeout 5 curl -fsS \
     http://localhost:9090/-/ready
 then
+
     echo ""
     echo "Prometheus: READY"
+
 else
+
     echo ""
     echo "WARNING: Prometheus readiness check failed."
+
 fi
 
 
@@ -323,11 +345,15 @@ echo ""
 if timeout 5 curl -fsS \
     http://localhost:3000/api/health
 then
+
     echo ""
     echo "Grafana: READY"
+
 else
+
     echo ""
     echo "WARNING: Grafana health check failed."
+
 fi
 
 
@@ -350,11 +376,15 @@ echo ""
 if timeout 5 curl -fsS \
     http://localhost/health
 then
+
     echo ""
     echo "Frontend: READY"
+
 else
+
     echo ""
     echo "WARNING: Frontend health check failed."
+
 fi
 
 
@@ -381,6 +411,7 @@ echo ""
 echo "=============================================="
 echo " REDEPLOY COMPLETE"
 echo "=============================================="
+
 echo ""
 
 echo "All containers have been started."
