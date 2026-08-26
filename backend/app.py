@@ -95,6 +95,7 @@ DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
+DB_PORT = int(os.getenv("DB_PORT", "3306"))
 
 
 # ============================================================
@@ -115,6 +116,10 @@ app.logger.info(
 
 app.logger.info(
     f"DB_NAME          : {DB_NAME}"
+)
+
+app.logger.info(
+    f"DB_PORT          : {DB_PORT}"
 )
 
 app.logger.info(
@@ -148,7 +153,9 @@ def get_db_connection():
 
         password=DB_PASSWORD,
 
-        database=DB_NAME
+        database=DB_NAME,
+
+        port=DB_PORT
 
     )
 
@@ -156,36 +163,11 @@ def get_db_connection():
 # ============================================================
 # DYNAMIC FRONTEND URL
 # ============================================================
-#
-# This is the important change.
-#
-# It allows the same container to work with:
-#
-# EC2:
-# http://EC2-PUBLIC-IP
-#
-# ALB:
-# http://ALB-DNS-NAME
-#
-# HTTPS ALB:
-# https://ALB-DNS-NAME
-#
-# Nothing is hard-coded.
-# ============================================================
 
 def get_frontend_base_url():
 
     # --------------------------------------------------------
     # Host
-    # --------------------------------------------------------
-    #
-    # Nginx sends:
-    #
-    # proxy_set_header Host $host;
-    #
-    # Therefore request.host contains the hostname/IP
-    # that the browser originally used.
-    #
     # --------------------------------------------------------
 
     host = request.headers.get(
@@ -195,14 +177,6 @@ def get_frontend_base_url():
 
     # --------------------------------------------------------
     # Protocol
-    # --------------------------------------------------------
-    #
-    # Nginx sends:
-    #
-    # proxy_set_header X-Forwarded-Proto $scheme;
-    #
-    # ALB can also forward this header.
-    #
     # --------------------------------------------------------
 
     proto = request.headers.get(
@@ -512,7 +486,7 @@ def metrics():
 
 
 # ============================================================
-# HEALTH CHECK
+# APPLICATION HEALTH CHECK
 # ============================================================
 
 @app.route("/health")
@@ -523,6 +497,90 @@ def health():
             "status": "ok"
         }
     )
+
+
+# ============================================================
+# DATABASE HEALTH CHECK
+# ============================================================
+
+@app.route("/health/db")
+def database_health():
+
+    conn = None
+
+    cursor = None
+
+    try:
+
+        # ----------------------------------------------------
+        # Connect to MySQL / RDS
+        # ----------------------------------------------------
+
+        conn = get_db_connection()
+
+        # ----------------------------------------------------
+        # Execute a lightweight query.
+        #
+        # SELECT 1 confirms that:
+        #
+        # - DNS works
+        # - network connectivity works
+        # - port 3306 is reachable
+        # - credentials work
+        # - database exists
+        # - MySQL accepts queries
+        # ----------------------------------------------------
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT 1"
+        )
+
+        result = cursor.fetchone()
+
+        if result and result[0] == 1:
+
+            return jsonify(
+                {
+                    "status": "ok",
+                    "database": "connected"
+                }
+            ), 200
+
+        return jsonify(
+            {
+                "status": "error",
+                "database": "query_failed"
+            }
+        ), 500
+
+    except Exception as e:
+
+        app.logger.error(
+            "Database Health Check Failed"
+        )
+
+        app.logger.error(
+            str(e)
+        )
+
+        return jsonify(
+            {
+                "status": "error",
+                "database": "unavailable"
+            }
+        ), 500
+
+    finally:
+
+        if cursor:
+
+            cursor.close()
+
+        if conn:
+
+            conn.close()
 
 
 # ============================================================
@@ -608,24 +666,11 @@ def create_checkout_session():
 
         # ----------------------------------------------------
         # Dynamically determine the frontend URL.
-        #
-        # Example:
-        #
-        # http://EC2-PUBLIC-IP
-        #
-        # OR
-        #
-        # http://ALB-DNS-NAME
-        #
-        # OR
-        #
-        # https://YOUR-DOMAIN
         # ----------------------------------------------------
 
         frontend_base_url = (
             get_frontend_base_url()
         )
-
 
         # ----------------------------------------------------
         # Stripe Checkout Session
@@ -657,11 +702,6 @@ def create_checkout_session():
                 }
             ],
 
-            # ------------------------------------------------
-            # IMPORTANT:
-            # These URLs are now dynamic.
-            # ------------------------------------------------
-
             success_url=(
                 f"{frontend_base_url}"
                 "/success.html"
@@ -672,7 +712,6 @@ def create_checkout_session():
                 "/cancel.html"
             )
         )
-
 
         app.logger.info(
             "Stripe Session Created"
@@ -692,13 +731,11 @@ def create_checkout_session():
             f"{frontend_base_url}/cancel.html"
         )
 
-
         return jsonify(
             {
                 "sessionId": checkout_session.id
             }
         ), 200
-
 
     except Exception as e:
 
@@ -736,13 +773,11 @@ def stripe_webhook():
         "========================================"
     )
 
-
     payload = request.data
 
     signature = request.headers.get(
         "Stripe-Signature"
     )
-
 
     if not signature:
 
@@ -754,7 +789,6 @@ def stripe_webhook():
             "Missing Stripe Signature",
             400
         )
-
 
     try:
 
@@ -772,7 +806,6 @@ def stripe_webhook():
             f"Event Type : {event['type']}"
         )
 
-
     except Exception as e:
 
         app.logger.error(
@@ -788,11 +821,9 @@ def stripe_webhook():
             400
         )
 
-
     event_type = event["type"]
 
     data = event["data"]["object"]
-
 
     # --------------------------------------------------------
     # Successful payment
@@ -809,7 +840,6 @@ def stripe_webhook():
             data["id"]
         )
 
-
     # --------------------------------------------------------
     # Expired checkout
     # --------------------------------------------------------
@@ -820,7 +850,6 @@ def stripe_webhook():
             "checkout_expired",
             data["id"]
         )
-
 
     # --------------------------------------------------------
     # Failed payment
@@ -833,13 +862,11 @@ def stripe_webhook():
             data["id"]
         )
 
-
     else:
 
         app.logger.info(
             f"Ignoring Event : {event_type}"
         )
-
 
     return "OK", 200
 
