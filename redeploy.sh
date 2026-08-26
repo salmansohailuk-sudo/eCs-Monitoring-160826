@@ -284,11 +284,23 @@ echo "=============================================="
 
 echo ""
 
-timeout 10 curl -fsS \
+if timeout 10 curl -fsS \
     http://localhost:9106/metrics \
-    | head -20 || \
+    -o /tmp/cloudwatch-exporter-metrics
+then
+
+    echo "CloudWatch exporter metrics endpoint: OK"
+
+    echo ""
+    echo "CloudWatch exporter sample metrics:"
+
+    head -20 /tmp/cloudwatch-exporter-metrics
+
+else
+
     echo "WARNING: CloudWatch exporter metrics check failed."
 
+fi
 
 # =====================================================
 # PROMETHEUS
@@ -421,5 +433,3 @@ echo ""
 docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 
 echo ""
-
-echo "=============================================="
