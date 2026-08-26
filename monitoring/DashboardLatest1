@@ -43,7 +43,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "aws_ec2_cpuutilization_average",
+          "expr": "last_over_time(aws_ec2_cpuutilization_average[30m])",
           "legendFormat": "{{instance_id}}",
           "range": true,
           "instant": false
@@ -86,7 +86,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "avg(aws_ec2_cpuutilization_average)",
+          "expr": "avg(last_over_time(aws_ec2_cpuutilization_average[30m]))",
           "range": true,
           "instant": false
         }
@@ -127,7 +127,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(aws_ec2_cpuutilization_average)",
+          "expr": "count(last_over_time(aws_ec2_cpuutilization_average[30m]))",
           "range": true,
           "instant": false
         }
@@ -633,7 +633,6 @@
         }
       }
     },
-
     {
       "id": 16,
       "type": "stat",
@@ -678,7 +677,6 @@
         "colorMode": "background"
       }
     },
-
     {
       "id": 17,
       "type": "timeseries",
@@ -719,7 +717,6 @@
         }
       }
     },
-
     {
       "id": 18,
       "type": "timeseries",
@@ -774,7 +771,6 @@
         }
       }
     },
-
     {
       "id": 19,
       "type": "timeseries",
