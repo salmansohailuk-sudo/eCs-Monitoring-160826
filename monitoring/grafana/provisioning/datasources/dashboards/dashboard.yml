@@ -1,11 +1,12 @@
 apiVersion: 1
 
 providers:
-  - name: 'Default'
+  - name: ECS Monitoring
     orgId: 1
     folder: ''
     type: file
     disableDeletion: false
-    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
     options:
-      path: /etc/grafana/provisioning/dashboards
+      path: /var/lib/grafana/dashboards
