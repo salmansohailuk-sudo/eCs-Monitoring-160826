@@ -16,12 +16,14 @@ services:
     ports:
       - "80:80"
 
+    environment:
+      BACKEND_URL: "http://backend:5000"
+
     depends_on:
       - backend
 
     networks:
       - ecommerce-network
-
 
   # =====================================================
   # E-COMMERCE BACKEND
