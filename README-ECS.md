@@ -1,6 +1,9 @@
 # ECS Fargate Deployment Guide
 # E-Commerce + Monitoring Stack
 
+
+# chmod 755 chmod +x ~/eCs-Monitoring-160826/frontend/20-backend-url.sh
+
 note: ALB Target health setting for grafana
 
 /api/health
