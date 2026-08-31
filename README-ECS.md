@@ -162,6 +162,47 @@ Check Prometheus health - curl http://your-alb-dns/prometheus/-/healthy
 }
 ```
 
+# Seps to create ECS Task Definations and environment variables.
+frontend
+BACKEND_URL = http://backend.testcluster.local:5000
+backend
+AWS_REGION            = us-east-1
+DB_HOST               = ecomm.c25accikcy7j.us-east-1.rds.amazonaws.com
+DB_USER               = admin
+DB_PASSWORD           = Cloud123
+DB_NAME               = ecomm
+DB_PORT               = 3306
+STRIPE_SECRET_KEY     = sk_test_...
+STRIPE_WEBHOOK_SECRET = whsec_...
+BASE_URL              = http://alb-1198490024.us-east-1.elb.amazonaws.com
+
+BASE_URL matters if your backend builds redirect/callback URLs anywhere (e.g. Stripe checkout success/cancel URLs) — it should point at the ALB, not the EC2 IP, once running in ECS.
+
+Security note: DB_PASSWORD, STRIPE_SECRET_KEY, and STRIPE_WEBHOOK_SECRET shouldn't go in as plaintext environment entries in a task definition — anyone with ecs:DescribeTaskDefinition can read them. Since this is a test project it's not critical, but the low-effort fix is to put them in AWS Secrets Manager (or SSM Parameter Store) and reference them via the task definition's secrets block instead of environment. Happy to write that out if you want it.
+
+nginx-exporter
+
+No environment variables — it's driven by a command override, not env vars:
+
+command = ["--nginx.scrape-uri=http://frontend.testcluster.local/nginx_status"]
+cloudwatch-exporter
+AWS_REGION = us-east-1
+
+It also needs IAM permissions to call CloudWatch's GetMetricData/ListMetrics — that's a task role, not an env var, so make sure the task definition's taskRoleArn has a policy allowing that.
+
+prometheus
+
+No environment variables needed — this is the one you already solved by baking prometheus.ecs.yml into the :ecs image tag, so it self-configures with the Cloud Map hostnames.
+
+grafana
+GF_SECURITY_ADMIN_USER      = admin
+GF_SECURITY_ADMIN_PASSWORD  = admin
+GF_SERVER_ROOT_URL          = http://alb-1198490024.us-east-1.elb.amazonaws.com:3000/
+GF_SERVER_SERVE_FROM_SUB_PATH = false
+PROMETHEUS_URL              = http://prometheus.testcluster.local:9090
+
+
+
 This guide deploys the application and monitoring stack to Amazon ECS Fargate.
 
 The existing ECS cluster and existing Application Load Balancer are reused.
