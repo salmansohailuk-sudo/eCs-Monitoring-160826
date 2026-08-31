@@ -11,8 +11,33 @@ note: ALB Target health setting for grafana
 ALB Target health setting for prometheus
 
 /prometheus/-/healthy
+/-
 
 Check Prometheus health - curl http://your-alb-dns/prometheus/-/healthy
+
+# Add listener to ALB
+## Prometheus
+```
+aws elbv2 create-listener \
+  --load-balancer-arn arn:aws:elasticloadbalancing:us-east-1:424592696361:loadbalancer/app/alb/344a6afee3d9057f \
+  --protocol HTTP \
+  --port 3000 \
+  --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:us-east-1:424592696361:targetgroup/grafanatg/2e48aa55423564a3
+
+```
+
+## Grafana
+
+```
+aws elbv2 create-listener \
+  --load-balancer-arn arn:aws:elasticloadbalancing:us-east-1:424592696361:loadbalancer/app/alb/344a6afee3d9057f \
+  --protocol HTTP \
+  --port 3000 \
+  --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:us-east-1:424592696361:targetgroup/grafanatg/2e48aa55423564a3
+
+```
+
+
 
 ## new Iam TaskRoleECSPolicy-expanded.
 ```
