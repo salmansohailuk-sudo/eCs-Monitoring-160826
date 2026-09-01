@@ -16,6 +16,32 @@ ALB Target health setting for prometheus
 Check Prometheus health - curl http://your-alb-dns/prometheus/-/healthy
 
 # Add listener to ALB
+### List Target Groups
+
+```bash
+aws elbv2 describe-target-groups \
+  --query "TargetGroups[].{Name:TargetGroupName,ARN:TargetGroupArn,Port:Port}" \
+  --output table
+| ARN | Name | Port |
+| --- | --- | --- |
+| arn:aws:elasticloadbalancing:us-east-1:637423280402:targetgroup/backendtg/2ba406d8c236c3e9 | backendtg | 5000 |
+| arn:aws:elasticloadbalancing:us-east-1:637423280402:targetgroup/frontendtg/61a53f23bc8571db | frontendtg | 80 |
+| arn:aws:elasticloadbalancing:us-east-1:637423280402:targetgroup/grafanatg/bc5cbb3c80737e56 | grafanatg | 3000 |
+| arn:aws:elasticloadbalancing:us-east-1:637423280402:targetgroup/prometheustg/8b0dd097100c1794 | prometheustg | 9090 |
+```
+### List ALB
+
+```
+aws elbv2 describe-load-balancers \
+  --query "LoadBalancers[].{Name:LoadBalancerName,ARN:LoadBalancerArn,DNS:DNSName}" \
+  --output table
+```
+| ARN | DNS | Name |
+| --- | --- | --- |
+| arn:aws:elasticloadbalancing:us-east-1:637423280402:loadbalancer/app/alb/3b16b3dae5243942 | alb-1672704437.us-east-1.elb.amazonaws.com | alb |
+
+
+
 ## Prometheus
 ```
 aws elbv2 create-listener \
