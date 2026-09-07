@@ -1,17 +1,13 @@
 FROM prom/prometheus:latest
 
-# Copy both Prometheus configurations
-COPY prometheus.yml /etc/prometheus/prometheus.yml
-COPY prometheus.ecs.yml /etc/prometheus/prometheus.ecs.yml
+# Docker for EC2 config
+ARG CONFIG_FILE=prometheus.yml
 
-# Copy startup script
-COPY start-prometheus.sh /start-prometheus.sh
+# Docker config for ECS
+# ARG CONFIG_FILE=prometheus.ecs.yml
 
-RUN chmod +x /start-prometheus.sh
+COPY ${CONFIG_FILE} /etc/prometheus/prometheus.yml
 
 EXPOSE 9090
 
-# Default = EC2 configuration
-ENV CONFIG_FILE=/etc/prometheus/prometheus.yml
-
-ENTRYPOINT ["/start-prometheus.sh"]
+CMD ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
