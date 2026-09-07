@@ -1,11 +1,12 @@
 FROM prom/prometheus:latest
 
-# Docker for EC2 config - uncomment as needed.
-ARG CONFIG_FILE=prometheus.yml
+# Copy both Prometheus configurations into the image
+COPY prometheus.yml /etc/prometheus/prometheus.yml
+COPY prometheus.ecs.yml /etc/prometheus/prometheus.ecs.yml
 
-# Docker config for ECS - uncomment as needed.
-#ARG CONFIG_FILE=prometheus.ecs.yml
-
-COPY ${CONFIG_FILE} /etc/prometheus/prometheus.yml
 EXPOSE 9090
-CMD ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+
+# Default configuration for EC2
+ENV CONFIG_FILE=/etc/prometheus/prometheus.yml
+
+CMD ["sh", "-c", "exec /bin/prometheus --config.file=${CONFIG_FILE} --storage.tsdb.path=/prometheus"]
