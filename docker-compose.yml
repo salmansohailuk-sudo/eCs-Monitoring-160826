@@ -67,6 +67,8 @@ services:
         condition: service_started
     networks:
       - ecommerce-network
+
+
   # =====================================================
   # AWS CLOUDWATCH EXPORTER
   # =====================================================
@@ -110,6 +112,35 @@ services:
 
     networks:
       - ecommerce-network
+
+
+  # =====================================================
+  # NEW: PROMETHEUS ECS IMAGE
+  # =====================================================
+
+  # <<< NEW: ECS PROMETHEUS IMAGE
+  prometheus-ecs:
+
+    container_name: monitoring-prometheusecs
+
+    image: monitoring-prometheusecs:latest
+
+    build:
+      context: ./monitoring/prometheus
+      dockerfile: Dockerfile.ecs
+
+    ports:
+      - "9091:9090"
+
+    depends_on:
+      - backend
+      - nginx-exporter
+      - cloudwatch-exporter
+
+    networks:
+      - ecommerce-network
+
+  # >>> END NEW
 
 
   # =====================================================
