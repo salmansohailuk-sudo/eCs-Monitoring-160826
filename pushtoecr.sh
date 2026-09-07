@@ -115,7 +115,6 @@ REQUIRED_IMAGES=(
     "${FRONTEND_IMAGE}:latest"
     "${BACKEND_IMAGE}:latest"
     "${GRAFANA_IMAGE}:latest"
-    "${PROMETHEUS_IMAGE}:latest"
     "${CLOUDWATCH_EXPORTER_IMAGE}:latest"
     "${NGINX_EXPORTER_IMAGE}:latest"
 )
@@ -141,8 +140,9 @@ done
 
 echo ""
 echo "=========================================="
-echo " Tagging Six Images"
+echo " Tagging Five Images"
 echo "=========================================="
+
 
 echo "Tagging Frontend..."
 
@@ -165,13 +165,6 @@ docker tag \
     "${ECR_REGISTRY}/${GRAFANA_IMAGE}:latest"
 
 
-echo "Tagging Prometheus..."
-
-docker tag \
-    "${PROMETHEUS_IMAGE}:latest" \
-    "${ECR_REGISTRY}/${PROMETHEUS_IMAGE}:latest"
-
-
 echo "Tagging CloudWatch Exporter..."
 
 docker tag \
@@ -187,7 +180,7 @@ docker tag \
 
 
 echo ""
-echo "All six images tagged successfully."
+echo "Five images tagged successfully."
 
 
 # =========================================================
@@ -196,7 +189,7 @@ echo "All six images tagged successfully."
 
 echo ""
 echo "=========================================="
-echo " Pushing Six Images to ECR"
+echo " Pushing Five Images to ECR"
 echo "=========================================="
 
 
@@ -219,13 +212,6 @@ echo "Pushing Grafana..."
 
 docker push \
     "${ECR_REGISTRY}/${GRAFANA_IMAGE}:latest"
-
-
-echo ""
-echo "Pushing Prometheus..."
-
-docker push \
-    "${ECR_REGISTRY}/${PROMETHEUS_IMAGE}:latest"
 
 
 echo ""
@@ -259,6 +245,7 @@ docker build \
 
 echo "Built: ${PROMETHEUS_IMAGE}:ecs"
 
+
 echo ""
 echo "Tagging ECS Prometheus image..."
 
@@ -266,14 +253,17 @@ docker tag \
     "${PROMETHEUS_IMAGE}:ecs" \
     "${ECR_REGISTRY}/${PROMETHEUS_IMAGE}:ecs"
 
+
 echo ""
 echo "Pushing ECS Prometheus image..."
 
 docker push \
     "${ECR_REGISTRY}/${PROMETHEUS_IMAGE}:ecs"
 
+
 echo ""
-echo "ECS Prometheus image pushed: ${ECR_REGISTRY}/${PROMETHEUS_IMAGE}:ecs"
+echo "ECS Prometheus image pushed:"
+echo "${ECR_REGISTRY}/${PROMETHEUS_IMAGE}:ecs"
 
 
 # =========================================================
@@ -292,7 +282,6 @@ echo ""
 echo "${ECR_REGISTRY}/ecomm-frontend:latest"
 echo "${ECR_REGISTRY}/ecomm-backend:latest"
 echo "${ECR_REGISTRY}/monitoring-grafana:latest"
-echo "${ECR_REGISTRY}/monitoring-prometheus:latest"
 echo "${ECR_REGISTRY}/monitoring-cloudwatch-exporter:latest"
 echo "${ECR_REGISTRY}/monitoring-nginx-exporter:latest"
 echo "${ECR_REGISTRY}/monitoring-prometheus:ecs"
