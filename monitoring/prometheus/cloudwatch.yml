@@ -1,0 +1,156 @@
+region: us-east-1
+
+metrics:
+
+  # =====================================================
+  # ECS CONTAINER INSIGHTS
+  # =====================================================
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: CpuUtilized
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: MemoryUtilized
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: NetworkRxBytes
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: ECS/ContainerInsights
+    aws_metric_name: NetworkTxBytes
+    aws_dimensions: [ClusterName, ServiceName]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+
+  # =====================================================
+  # EC2
+  # =====================================================
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: CPUUtilization
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: NetworkIn
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: NetworkOut
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: DiskReadOps
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: DiskWriteOps
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+
+  # =====================================================
+  # APPLICATION LOAD BALANCER
+  # =====================================================
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: RequestCount
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: ActiveConnectionCount
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: NewConnectionCount
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: ProcessedBytes
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: ConsumedLCUs
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: PeakLCUs
+    aws_statistics: [Maximum]
+    aws_dimensions: [LoadBalancer]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: CapacityUtilization
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HealthyHostCount
+    aws_dimensions: [LoadBalancer, TargetGroup]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: UnHealthyHostCount
+    aws_dimensions: [LoadBalancer, TargetGroup]
+    aws_statistics: [Average]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HTTPCode_ELB_503_Count
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HTTPCode_ELB_5XX_Count
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
