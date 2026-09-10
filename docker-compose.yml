@@ -8,6 +8,7 @@ services:
     image: ecomm-frontend:latest
     build:
       context: ./frontend
+    restart: unless-stopped
     ports:
       - "80:80"
     environment:
@@ -29,6 +30,7 @@ services:
     image: ecomm-backend:latest
     build:
       context: ./backend
+    restart: unless-stopped
     env_file:
       - .env
     ports:
@@ -45,6 +47,7 @@ services:
       context: ./monitoring/nginx-exporter
       dockerfile: Dockerfile
     container_name: monitoring-nginx-exporter
+    restart: unless-stopped
     command:
       - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
     ports:
@@ -63,6 +66,12 @@ services:
     image: monitoring-cloudwatch-exporter:latest
     build:
       context: ./monitoring/cloudwatch-exporter
+    restart: unless-stopped
+    environment:
+      # No static AWS keys here - credentials come from the EC2 instance
+      # profile via IMDS. See ec2.tf metadata_options (hop limit = 2),
+      # which is required for this container to reach the metadata service.
+      AWS_REGION: ${AWS_REGION}
     ports:
       - "9106:9106"
     networks:
@@ -76,6 +85,9 @@ services:
     image: monitoring-prometheus:latest
     build:
       context: ./monitoring/prometheus
+    restart: unless-stopped
+    volumes:
+      - prometheus_data:/prometheus
     ports:
       - "9090:9090"
     depends_on:
@@ -93,6 +105,9 @@ services:
     image: monitoring-grafana:latest
     build:
       context: ./monitoring/grafana
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     environment:
@@ -112,3 +127,10 @@ services:
 networks:
   ecommerce-network:
     driver: bridge
+
+# =====================================================
+# VOLUMES (persist metrics/dashboards across recreates)
+# =====================================================
+volumes:
+  prometheus_data:
+  grafana_data:
