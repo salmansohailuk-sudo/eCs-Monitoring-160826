@@ -39,43 +39,40 @@ services:
       - ecommerce-network
 
   # =====================================================
-  # NGINX PROMETHEUS EXPORTER
+  # NGINX PROMETHEUS EXPORTER (DISABLED — baked into frontend)
   # =====================================================
-  nginx-exporter:
-    image: monitoring-nginx-exporter:latest
-    build:
-      context: ./monitoring/nginx-exporter
-      dockerfile: Dockerfile
-    container_name: monitoring-nginx-exporter
-    restart: unless-stopped
-    command:
-      - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
-    ports:
-      - "9113:9113"
-    depends_on:
-      frontend:
-        condition: service_started
-    networks:
-      - ecommerce-network
+  # nginx-exporter:
+  #   image: monitoring-nginx-exporter:latest
+  #   build:
+  #     context: ./monitoring/nginx-exporter
+  #     dockerfile: Dockerfile
+  #   container_name: monitoring-nginx-exporter
+  #   restart: unless-stopped
+  #   command:
+  #     - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
+  #   ports:
+  #     - "9113:9113"
+  #   depends_on:
+  #     frontend:
+  #       condition: service_started
+  #   networks:
+  #     - ecommerce-network
 
   # =====================================================
-  # AWS CLOUDWATCH EXPORTER
+  # AWS CLOUDWATCH EXPORTER (DISABLED — baked into Prometheus)
   # =====================================================
-  cloudwatch-exporter:
-    container_name: monitoring-cloudwatch-exporter
-    image: monitoring-cloudwatch-exporter:latest
-    build:
-      context: ./monitoring/cloudwatch-exporter
-    restart: unless-stopped
-    environment:
-      # No static AWS keys here - credentials come from the EC2 instance
-      # profile via IMDS. See ec2.tf metadata_options (hop limit = 2),
-      # which is required for this container to reach the metadata service.
-      AWS_REGION: ${AWS_REGION}
-    ports:
-      - "9106:9106"
-    networks:
-      - ecommerce-network
+  # cloudwatch-exporter:
+  #   container_name: monitoring-cloudwatch-exporter
+  #   image: monitoring-cloudwatch-exporter:latest
+  #   build:
+  #     context: ./monitoring/cloudwatch-exporter
+  #   restart: unless-stopped
+  #   environment:
+  #     AWS_REGION: ${AWS_REGION}
+  #   ports:
+  #     - "9106:9106"
+  #   networks:
+  #     - ecommerce-network
 
   # =====================================================
   # PROMETHEUS
@@ -92,8 +89,8 @@ services:
       - "9090:9090"
     depends_on:
       - backend
-      - nginx-exporter
-      - cloudwatch-exporter
+      # - nginx-exporter        # DISABLED — exporter now inside frontend
+      # - cloudwatch-exporter   # DISABLED — exporter now inside Prometheus
     networks:
       - ecommerce-network
 
