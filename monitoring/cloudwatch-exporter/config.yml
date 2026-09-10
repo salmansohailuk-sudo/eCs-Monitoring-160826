@@ -154,3 +154,57 @@ metrics:
     aws_statistics: [Sum]
     period_seconds: 60
     range_seconds: 300
+
+      # =====================================================
+  # ADDITIONAL EC2 METRICS (APPENDED AS REQUESTED)
+  # =====================================================
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: StatusCheckFailed
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Maximum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: StatusCheckFailed_Instance
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Maximum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: StatusCheckFailed_System
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Maximum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: DiskReadBytes
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: DiskWriteBytes
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 60
+    range_seconds: 300
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: CPUCreditUsage
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: CPUCreditBalance
+    aws_dimensions: [InstanceId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 900
+
