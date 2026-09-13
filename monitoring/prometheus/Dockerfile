@@ -8,8 +8,6 @@ RUN apk add --no-cache curl tar \
     && tar -xzf prometheus.tar.gz \
     && mv prometheus-${PROM_VERSION}.linux-amd64/prometheus /bin/prometheus \
     && mv prometheus-${PROM_VERSION}.linux-amd64/promtool /bin/promtool \
-    && mv prometheus-${PROM_VERSION}.linux-amd64/consoles /etc/prometheus/consoles \
-    && mv prometheus-${PROM_VERSION}.linux-amd64/console_libraries /etc/prometheus/console_libraries \
     && rm -rf prometheus.tar.gz prometheus-${PROM_VERSION}.linux-amd64
 
 # prometheus config
