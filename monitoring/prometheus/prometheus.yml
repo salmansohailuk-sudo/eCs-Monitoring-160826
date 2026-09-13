@@ -1,0 +1,53 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+
+  # =====================================================
+  # PROMETHEUS
+  # =====================================================
+
+  - job_name: "prometheus"
+    metrics_path: "/metrics"
+
+    static_configs:
+      - targets:
+          - "localhost:9090"
+
+
+  # =====================================================
+  # AWS CLOUDWATCH EXPORTER
+  # =====================================================
+
+  - job_name: "cloudwatch-exporter"
+    metrics_path: "/metrics"
+
+    static_configs:
+      - targets:
+          - "localhost:9106"
+
+
+  # =====================================================
+  # FLASK BACKEND
+  # =====================================================
+
+  - job_name: "backend"
+    metrics_path: "/metrics"
+
+    static_configs:
+      - targets:
+          - "backend:5000"
+
+
+  # =====================================================
+  # NGINX FRONTEND EXPORTER
+  # =====================================================
+
+  - job_name: "nginx-exporter"
+    metrics_path: "/metrics"
+
+    static_configs:
+      - targets:
+          - "nginx-exporter:9113"
