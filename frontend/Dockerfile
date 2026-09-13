@@ -4,8 +4,8 @@ FROM nginx:alpine
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
 
-# injects backend URL at container start
-COPY 20-backend-url.sh /docker-entrypoint.d/20-backend-url.sh
+# injects backend URL at container start (must be executable or nginx skips it)
+COPY --chmod=755 20-backend-url.sh /docker-entrypoint.d/20-backend-url.sh
 
 # frontend build
 COPY . /usr/share/nginx/html
