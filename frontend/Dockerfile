@@ -21,6 +21,8 @@ RUN apk add --no-cache curl tar \
     && rm -f nginx-exporter.tar.gz
 
 # run nginx + exporter together
-CMD ["/bin/sh", "-c", "nginx -g 'daemon off;' & nginx-exporter -nginx.scrape-uri http://localhost/nginx_status"]
+# (base image only auto-runs docker-entrypoint.d/*.sh when CMD is literally
+# "nginx" — since we override CMD, we call the script ourselves first)
+CMD ["/bin/sh", "-c", "/docker-entrypoint.d/20-backend-url.sh && nginx -g 'daemon off;' & nginx-exporter -nginx.scrape-uri http://localhost/nginx_status"]
 
 EXPOSE 80
