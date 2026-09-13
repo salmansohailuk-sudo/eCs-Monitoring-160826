@@ -1,0 +1,134 @@
+services:
+
+  # =====================================================
+  # E-COMMERCE FRONTEND
+  # =====================================================
+  frontend:
+    container_name: ecomm-frontend
+    image: ecomm-frontend:latest
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      BACKEND_URL: "http://backend:5000"
+    depends_on:
+      - backend
+    networks:
+      ecommerce-network:
+        aliases:
+          - frontend
+          - ecomm-frontend
+          - frontend.testcluster.local
+
+  # =====================================================
+  # E-COMMERCE BACKEND
+  # =====================================================
+  backend:
+    container_name: ecomm-backend
+    image: ecomm-backend:latest
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    networks:
+      - ecommerce-network
+
+  # =====================================================
+  # NGINX PROMETHEUS EXPORTER (DISABLED — baked into frontend)
+  # =====================================================
+  # nginx-exporter:
+  #   image: monitoring-nginx-exporter:latest
+  #   build:
+  #     context: ./monitoring/nginx-exporter
+  #     dockerfile: Dockerfile
+  #   container_name: monitoring-nginx-exporter
+  #   restart: unless-stopped
+  #   command:
+  #     - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
+  #   ports:
+  #     - "9113:9113"
+  #   depends_on:
+  #     frontend:
+  #       condition: service_started
+  #   networks:
+  #     - ecommerce-network
+
+  # =====================================================
+  # AWS CLOUDWATCH EXPORTER (DISABLED — baked into Prometheus)
+  # =====================================================
+  # cloudwatch-exporter:
+  #   container_name: monitoring-cloudwatch-exporter
+  #   image: monitoring-cloudwatch-exporter:latest
+  #   build:
+  #     context: ./monitoring/cloudwatch-exporter
+  #   restart: unless-stopped
+  #   environment:
+  #     AWS_REGION: ${AWS_REGION}
+  #   ports:
+  #     - "9106:9106"
+  #   networks:
+  #     - ecommerce-network
+
+  # =====================================================
+  # PROMETHEUS
+  # =====================================================
+  prometheus:
+    container_name: monitoring-prometheus
+    image: monitoring-prometheus:latest
+    build:
+      context: ./monitoring/prometheus
+    restart: unless-stopped
+    volumes:
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+      - "9106:9106"
+    depends_on:
+      - backend
+      # - nginx-exporter        # DISABLED — exporter now inside frontend
+      # - cloudwatch-exporter   # DISABLED — exporter now inside Prometheus
+    networks:
+      - ecommerce-network
+
+  # =====================================================
+  # GRAFANA
+  # =====================================================
+  grafana:
+    container_name: monitoring-grafana
+    image: monitoring-grafana:latest
+    build:
+      context: ./monitoring/grafana
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_SERVER_ROOT_URL: "http://${EC2_PUBLIC_IP}:3000/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
+      PROMETHEUS_URL: "http://prometheus:9090"
+    depends_on:
+      - prometheus
+    networks:
+      - ecommerce-network
+
+# =====================================================
+# NETWORK
+# =====================================================
+networks:
+  ecommerce-network:
+    driver: bridge
+
+# =====================================================
+# VOLUMES (persist metrics/dashboards across recreates)
+# =====================================================
+volumes:
+  prometheus_data:
+  grafana_data:
