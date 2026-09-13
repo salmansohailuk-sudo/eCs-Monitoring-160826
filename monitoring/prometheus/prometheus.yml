@@ -42,7 +42,7 @@ scrape_configs:
 
 
   # =====================================================
-  # NGINX FRONTEND EXPORTER
+  # NGINX FRONTEND EXPORTER (baked into frontend container)
   # =====================================================
 
   - job_name: "nginx-exporter"
@@ -50,4 +50,4 @@ scrape_configs:
 
     static_configs:
       - targets:
-          - "nginx-exporter:9113"
+          - "frontend:9113"
