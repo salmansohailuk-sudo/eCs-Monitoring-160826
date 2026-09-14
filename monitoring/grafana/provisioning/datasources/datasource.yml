@@ -9,4 +9,22 @@ datasources:
     isDefault: true
     editable: true
     jsonData:
-      httpMethod: POST
+      httpMethod: POS
+
+  - name: MySQL-Ecomm
+    type: mysql
+    access: proxy
+    url: $__env{DB_HOST}:$__env{DB_PORT}
+    database: $__env{DB_NAME}
+    user: $__env{DB_USER}
+    secureJsonData:
+      password: $__env{DB_PASSWORD}
+    jsonData:
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+    editable: false
+
+
+
+  
