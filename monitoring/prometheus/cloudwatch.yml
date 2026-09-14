@@ -154,3 +154,50 @@ metrics:
     aws_statistics: [Sum]
     period_seconds: 60
     range_seconds: 300
+
+
+  # =====================================================
+  # EBS VOLUME METRICS
+  # =====================================================
+
+  - aws_namespace: AWS/EBS
+    aws_metric_name: VolumeReadOps
+    aws_dimensions: [VolumeId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EBS
+    aws_metric_name: VolumeWriteOps
+    aws_dimensions: [VolumeId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EBS
+    aws_metric_name: VolumeReadBytes
+    aws_dimensions: [VolumeId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EBS
+    aws_metric_name: VolumeWriteBytes
+    aws_dimensions: [VolumeId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EBS
+    aws_metric_name: VolumeQueueLength
+    aws_dimensions: [VolumeId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 900
+
+  - aws_namespace: AWS/EBS
+    aws_metric_name: BurstBalance
+    aws_dimensions: [VolumeId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 900
