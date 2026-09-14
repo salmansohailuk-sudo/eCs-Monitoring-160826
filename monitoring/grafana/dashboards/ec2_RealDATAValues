@@ -1360,15 +1360,12 @@
         "w": 6,
         "h": 5
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM analytics WHERE event_type = 'page_visit' AND $__timeFilter(created_at)"
+          "rawSql": "SELECT COUNT(*) AS value FROM analytics WHERE event_type = 'page_visit'"
         }
       ],
       "fieldConfig": {
@@ -1400,15 +1397,12 @@
         "w": 6,
         "h": 5
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM analytics WHERE event_type = 'start_checkout' AND $__timeFilter(created_at)"
+          "rawSql": "SELECT COUNT(*) AS value FROM analytics WHERE event_type = 'start_checkout'"
         }
       ],
       "fieldConfig": {
@@ -1440,15 +1434,12 @@
         "w": 6,
         "h": 5
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM orders WHERE status = 'paid' AND $__timeFilter(created_at)"
+          "rawSql": "SELECT COUNT(*) AS value FROM orders WHERE status = 'paid'"
         }
       ],
       "fieldConfig": {
@@ -1480,15 +1471,12 @@
         "w": 6,
         "h": 5
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM analytics WHERE event_type = 'checkout_cancelled' AND $__timeFilter(created_at)"
+          "rawSql": "SELECT COUNT(*) AS value FROM analytics WHERE event_type = 'cancel_checkout'"
         }
       ],
       "fieldConfig": {
@@ -1520,15 +1508,12 @@
         "w": 6,
         "h": 5
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT ROUND(100.0 * SUM(CASE WHEN event_type = 'payment_success' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN event_type = 'start_checkout' THEN 1 ELSE 0 END), 0), 1) AS value FROM analytics WHERE $__timeFilter(created_at)"
+          "rawSql": "SELECT ROUND(100.0 * SUM(CASE WHEN event_type = 'payment_success' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN event_type = 'start_checkout' THEN 1 ELSE 0 END), 0), 1) AS value FROM analytics"
         }
       ],
       "fieldConfig": {
@@ -1562,15 +1547,12 @@
         "w": 6,
         "h": 5
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "table",
-          "rawSql": "SELECT COALESCE(SUM(amount), 0) / 100 AS value FROM orders WHERE status = 'paid' AND $__timeFilter(created_at)"
+          "rawSql": "SELECT COALESCE(SUM(amount), 0) / 100 AS value FROM orders WHERE status = 'paid'"
         }
       ],
       "fieldConfig": {
@@ -1602,15 +1584,12 @@
         "w": 12,
         "h": 8
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
           "format": "time_series",
-          "rawSql": "SELECT $__timeGroup(created_at, '1h') AS time, event_type AS metric, COUNT(*) AS value FROM analytics WHERE $__timeFilter(created_at) AND event_type IN ('page_visit', 'start_checkout', 'payment_success', 'checkout_cancelled') GROUP BY $__timeGroup(created_at, '1h'), event_type ORDER BY time"
+          "rawSql": "SELECT $__timeGroup(created_at, '1h') AS time, event_type AS metric, COUNT(*) AS value FROM analytics WHERE $__timeFilter(created_at) AND event_type IN ('page_visit', 'start_checkout', 'payment_success', 'cancel_checkout') GROUP BY $__timeGroup(created_at, '1h'), event_type ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -1640,10 +1619,7 @@
         "w": 12,
         "h": 8
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
@@ -1672,10 +1648,7 @@
         "w": 12,
         "h": 8
       },
-      "datasource": {
-        "type": "mysql",
-        "name": "MySQL-Ecomm"
-      },
+      "datasource": "MySQL-Ecomm",
       "targets": [
         {
           "refId": "A",
@@ -1713,10 +1686,10 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timezone": "browser",
   "title": "🚀 E-Commerce Infrastructure & Application Monitoring",
-  "version": 2
+  "version": 5
 }
