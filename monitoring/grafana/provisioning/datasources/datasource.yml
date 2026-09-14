@@ -9,21 +9,52 @@ datasources:
     isDefault: true
     editable: true
     jsonData:
-      httpMethod: POS
+      httpMethod: POST
 
   - name: MySQL-Ecomm
     type: mysql
     access: proxy
-    url: $__env{DB_HOST}:$__env{DB_PORT}
-    database: $__env{DB_NAME}
-    user: $__env{DB_USER}
+    url: ${DB_HOST}:${DB_PORT}
+    database: ${DB_NAME}
+    user: ${DB_USER}
     secureJsonData:
-      password: $__env{DB_PASSWORD}
+      password: ${DB_PASSWORD}
     jsonData:
       maxOpenConns: 5
       maxIdleConns: 2
       connMaxLifetime: 14400
     editable: false
+
+    
+
+
+
+#apiVersion: 1
+
+#datasources:
+#  - name: Prometheus
+#    uid: prometheus
+#    type: prometheus
+#    access: proxy
+#    url: ${PROMETHEUS_URL}
+#    isDefault: true
+#    editable: true
+#    jsonData:
+#      httpMethod: POS
+
+#  - name: MySQL-Ecomm
+#    type: mysql
+#    access: proxy
+#    url: $__env{DB_HOST}:$__env{DB_PORT}
+#    database: $__env{DB_NAME}
+#    user: $__env{DB_USER}
+#    secureJsonData:
+#      password: $__env{DB_PASSWORD}
+#    jsonData:
+#      maxOpenConns: 5
+#      maxIdleConns: 2
+#      connMaxLifetime: 14400
+#    editable: false
 
 
 
