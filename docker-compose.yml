@@ -108,17 +108,29 @@ services:
       - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
+
+    # -----------------------------------------------------
+    # 🔥 FIX #1 — Load the Terraform-generated .env file
+    # -----------------------------------------------------
+    # This ensures DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+    # are actually available inside the Grafana container.
+    #
+    # Without this, Grafana receives empty values and fails to
+    # connect to MySQL, producing the exact error you saw.
+    # -----------------------------------------------------
+    env_file:
+      - .env
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_SERVER_ROOT_URL: "http://${EC2_PUBLIC_IP}:3000/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "false"
       PROMETHEUS_URL: "http://prometheus:9090"
-      DB_HOST: ${RDS_ENDPOINT}
-      DB_PORT: "3306"
-      DB_NAME: "ecomm"
-      DB_USER: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+      #DB_HOST: ${RDS_ENDPOINT}
+      #DB_PORT: "3306"
+      #DB_NAME: "ecomm"
+      #DB_USER: ${DB_USERNAME}
+      #DB_PASSWORD: ${DB_PASSWORD}
           
     
     depends_on:
