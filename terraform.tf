@@ -315,7 +315,7 @@ resource "aws_instance" "ec2" {
 
   iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
 
-  user_data = <<EOF
+user_data = <<EOF
 #!/bin/bash
 set -x
 exec > /var/log/user-data.log 2>&1
@@ -323,8 +323,33 @@ exec > /var/log/user-data.log 2>&1
 yum update -y
 
 yum install docker -y
-yum install mariadb105-server -y
-yum install mariadb -y || dnf install mariadb -y
+
+# ============================================================
+# MySQL CLIENT
+# Supports:
+#   - Amazon Linux 2  -> yum
+#   - Amazon Linux 2023 -> dnf
+#
+# MySQL 8 client is required for RDS using
+# caching_sha2_password authentication.
+# ============================================================
+
+if command -v dnf >/dev/null 2>&1; then
+    # Amazon Linux 2023
+    dnf install -y mysql-community-client
+else
+    # Amazon Linux 2
+    yum install -y https://dev.mysql.com/get/mysql80-community-release-el7-11.noarch.rpm
+    yum clean all
+    yum install -y mysql-community-client
+fi
+
+mysql --version
+
+# ============================================================
+# Other required packages
+# ============================================================
+
 yum install jq -y
 yum install tree -y
 yum install git -y
@@ -332,19 +357,60 @@ yum install git -y
 systemctl enable docker
 systemctl start docker
 
-curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-linux-x86_64" \
+    -o /usr/local/bin/docker-compose
+
 chmod +x /usr/local/bin/docker-compose
 
 cd /home/ec2-user
+
 git clone https://github.com/salmansohailuk-sudo/eCs-Monitoring-160826.git ecomm
 
 cd /home/ec2-user/ecomm
+
 chmod 755 frontend/20-backend-url.sh
 
-TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-EC2_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)
+TOKEN=\$(curl -s -X PUT \
+    "http://169.254.169.254/latest/api/token" \
+    -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+EC2_IP=\$(curl -s \
+    -H "X-aws-ec2-metadata-token: \$TOKEN" \
+    http://169.254.169.254/latest/meta-data/public-ipv4)
 
 cat > .env <<EOT
+
+#  user_data = <<EOF
+#!/bin/bash
+#set -x
+#exec > /var/log/user-data.log 2>&1
+
+#yum update -y
+
+#yum install docker -y
+#yum install mariadb105-server -y
+#yum install mariadb -y || dnf install mariadb -y
+#yum install jq -y
+#yum install tree -y
+#yum install git -y
+
+#systemctl enable docker
+#systemctl start docker
+
+#curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+#chmod +x /usr/local/bin/docker-compose
+
+#cd /home/ec2-user
+#git clone https://github.com/salmansohailuk-sudo/eCs-Monitoring-160826.git ecomm
+
+#cd /home/ec2-user/ecomm
+#chmod 755 frontend/20-backend-url.sh
+
+#TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+#EC2_IP=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)
+
+#cat > .env <<EOT
+
 FRONTEND_URL=http://$EC2_IP
 BACKEND_URL=http://$EC2_IP:5000
 
