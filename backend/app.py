@@ -1,3 +1,4 @@
+```python
 import time
 import os
 import logging
@@ -674,13 +675,15 @@ def create_checkout_session():
 
         # ----------------------------------------------------
         # Stripe Checkout Session
+        #
+        # IMPORTANT:
+        # payment_method_types has intentionally been removed.
+        #
+        # Stripe now manages payment methods through the
+        # Stripe Dashboard / Dynamic Payment Methods.
         # ----------------------------------------------------
 
         checkout_session = stripe.checkout.Session.create(
-
-            payment_method_types=[
-                "card"
-            ],
 
             mode="payment",
 
@@ -736,6 +739,22 @@ def create_checkout_session():
                 "sessionId": checkout_session.id
             }
         ), 200
+
+    except stripe.error.StripeError as e:
+
+        app.logger.error(
+            "Stripe Checkout Error"
+        )
+
+        app.logger.error(
+            str(e)
+        )
+
+        return jsonify(
+            {
+                "error": str(e)
+            }
+        ), 500
 
     except Exception as e:
 
@@ -901,3 +920,4 @@ if __name__ == "__main__":
         debug=True
 
     )
+```
