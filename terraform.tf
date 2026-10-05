@@ -365,7 +365,7 @@ GRAFANA_ADMIN_PASSWORD=admin
 NGINX_SCRAPE_URI=http://frontend/nginx_status
 
 STRIPE_SECRET_KEY=sk_test_51TubqqKrKF732rFWVJzlq745qQxqkwSK8nmAxhCYK9wqvZy0kXkhMjdL3g4eGloaXPIKZSOhc6TyCX4afZCIkmcz00iF2oqtxp
-STRIPE_WEBHOOK_SECRET=whsec_CXT0ZLFISoic5zKemapnJSqhAvBiwVvc
+STRIPE_WEBHOOK_SECRET=whsec_s7hNyViJ5ReMP9h6tUgyHmHC1fZuHl1Z
 EOT
 
 mysql -h ${aws_db_instance.mysql.address} -u admin -pCloud123 < createdatabase.sql
